@@ -1,5 +1,6 @@
 // Copyright 2019-2022 ChainSafe Systems
 // SPDX-License-Identifier: Apache-2.0, MIT
+
 use std::sync::Arc;
 
 use cid::{Cid, Code::Blake2b256};
@@ -19,6 +20,12 @@ use actor_interface::actorv3::paych::LANE_STATES_AMT_BITWIDTH;
 use super::migrate_amt_raw;
 
 pub struct PaychMigrator(Cid);
+
+pub fn paych_migrator_v3<BS: BlockStore + Send + Sync>(
+    cid: Cid,
+) -> Arc<dyn ActorMigration<BS> + Send + Sync> {
+    Arc::new(PaychMigrator(cid))
+}
 
 impl<BS: BlockStore + Send + Sync> ActorMigration<BS> for PaychMigrator {
     fn migrate_state(

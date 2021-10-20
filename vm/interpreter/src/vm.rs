@@ -8,7 +8,7 @@ use super::{
 use actor::{
     actorv0::reward::AwardBlockRewardParams, cron, miner, reward, system, BURNT_FUNDS_ACTOR_ADDR,
 };
-use actor::{actorv3, actorv4};
+use actor::{actorv2, actorv3, actorv4};
 use address::Address;
 use cid::Cid;
 use clock::ChainEpoch;
@@ -649,8 +649,29 @@ fn run_nv10_migration(
 ) -> Result<Cid, Box<dyn StdError>> {
     let mut migration = state_migration::StateMigration::new();
     migration.set_nil_migrations();
-    let (v4_miner_actor_cid, v3_miner_actor_cid) =
-        (*actorv4::MINER_ACTOR_CODE_ID, *actorv3::MINER_ACTOR_CODE_ID);
+
+    let (v3_miner_actor_cid, v2_miner_actor_cid) =
+        (*actorv3::MINER_ACTOR_CODE_ID, *actorv2::MINER_ACTOR_CODE_ID);
+
+    let (v3_init_actor_cid, v2_init_actor_cid) =
+        (*actorv3::INIT_ACTOR_CODE_ID, *actorv2::INIT_ACTOR_CODE_ID);
+
+    let (v3_market_actor_cid, v2_market_actor_cid) = (
+        *actorv3::MARKET_ACTOR_CODE_ID,
+        *actorv2::MARKET_ACTOR_CODE_ID,
+    );
+
+    let (v3_multisig_actor_cid, v2_multisig_actor_cid) = (
+        *actorv3::MULTISIG_ACTOR_CODE_ID,
+        *actorv2::MULTISIG_ACTOR_CODE_ID,
+    );
+
+    let (v3_paych_actor_cid, v2_paych_actor_cid) =
+        (*actorv3::PAYCH_ACTOR_CODE_ID, *actorv2::PAYCH_ACTOR_CODE_ID);
+
+    let (v3_power_actor_cid, v2_power_actor_cid) =
+        (*actorv3::POWER_ACTOR_CODE_ID, *actorv2::POWER_ACTOR_CODE_ID);
+
     let store_ref = store.clone();
     let actors_in = StateTree::new_from_root(&*store_ref, &prev_state)
         .map_err(|e| state_migration::MigrationError::StateTreeCreation(e.to_string()))?;
@@ -658,9 +679,30 @@ fn run_nv10_migration(
         .map_err(|e| state_migration::MigrationError::StateTreeCreation(e.to_string()))?;
 
     migration.add_migrator(
-        v3_miner_actor_cid,
-        state_migration::nv10::miner_migrator_v3(v4_miner_actor_cid),
+        v2_miner_actor_cid,
+        state_migration::nv10::miner_migrator_v3(v3_miner_actor_cid),
     );
+    migration.add_migrator(
+        v2_init_actor_cid,
+        state_migration::nv10::init_migrator_v3(v3_init_actor_cid),
+    );
+    migration.add_migrator(
+        v2_market_actor_cid,
+        state_migration::nv10::market_migrator_v3(v3_market_actor_cid),
+    );
+    migration.add_migrator(
+        v2_multisig_actor_cid,
+        state_migration::nv10::multisig_migrator_v3(v3_multisig_actor_cid),
+    );
+    migration.add_migrator(
+        v2_paych_actor_cid,
+        state_migration::nv10::paych_migrator_v3(v3_paych_actor_cid),
+    );
+    migration.add_migrator(
+        v2_power_actor_cid,
+        state_migration::nv10::power_migrator_v3(v3_power_actor_cid),
+    );
+
     let new_state = migration.migrate_state_tree(store, epoch, actors_in, actors_out)?;
     Ok(new_state)
 }

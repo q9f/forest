@@ -1,5 +1,8 @@
 // Copyright 2019-2022 ChainSafe Systems
 // SPDX-License-Identifier: Apache-2.0, MIT
+
+use std::sync::Arc;
+
 use crate::{
     ActorMigration, ActorMigrationInput, MigrationError, MigrationOutput, MigrationResult,
 };
@@ -15,6 +18,12 @@ use ipld_blockstore::BlockStore;
 use super::migrate_hamt_raw;
 
 pub struct InitMigrator(Cid);
+
+pub fn init_migrator_v3<BS: BlockStore + Send + Sync>(
+    cid: Cid,
+) -> Arc<dyn ActorMigration<BS> + Send + Sync> {
+    Arc::new(InitMigrator(cid))
+}
 
 impl<BS: BlockStore + Send + Sync> ActorMigration<BS> for InitMigrator {
     fn migrate_state(

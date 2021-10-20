@@ -1,5 +1,6 @@
 // Copyright 2019-2022 ChainSafe Systems
 // SPDX-License-Identifier: Apache-2.0, MIT
+
 use crate::{
     ActorMigration, ActorMigrationInput, MigrationError, MigrationOutput, MigrationResult,
 };
@@ -23,6 +24,12 @@ use actor_interface::{
 };
 
 pub struct PowerMigrator(Cid);
+
+pub fn power_migrator_v3<BS: BlockStore + Send + Sync>(
+    cid: Cid,
+) -> Arc<dyn ActorMigration<BS> + Send + Sync> {
+    Arc::new(PowerMigrator(cid))
+}
 
 impl<BS: BlockStore + Send + Sync> ActorMigration<BS> for PowerMigrator {
     fn migrate_state(

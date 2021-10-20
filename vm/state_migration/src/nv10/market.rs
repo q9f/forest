@@ -1,5 +1,6 @@
 // Copyright 2019-2022 ChainSafe Systems
 // SPDX-License-Identifier: Apache-2.0, MIT
+
 use std::sync::Arc;
 
 use cid::{Cid, Code::Blake2b256};
@@ -22,6 +23,12 @@ use crate::{
 use super::{migrate_amt_raw, migrate_hamt_hamt_raw, migrate_hamt_raw};
 
 pub struct MarketMigrator(Cid);
+
+pub fn market_migrator_v3<BS: BlockStore + Send + Sync>(
+    cid: Cid,
+) -> Arc<dyn ActorMigration<BS> + Send + Sync> {
+    Arc::new(MarketMigrator(cid))
+}
 
 impl<BS: BlockStore + Send + Sync> ActorMigration<BS> for MarketMigrator {
     fn migrate_state(

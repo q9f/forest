@@ -1,5 +1,6 @@
 // Copyright 2019-2022 ChainSafe Systems
 // SPDX-License-Identifier: Apache-2.0, MIT
+
 use crate::{
     ActorMigration, ActorMigrationInput, MigrationError, MigrationOutput, MigrationResult,
 };
@@ -20,6 +21,12 @@ use std::sync::Arc;
 use super::migrate_hamt_raw;
 
 pub struct MultisigMigrator(Cid);
+
+pub fn multisig_migrator_v3<BS: BlockStore + Send + Sync>(
+    cid: Cid,
+) -> Arc<dyn ActorMigration<BS> + Send + Sync> {
+    Arc::new(MultisigMigrator(cid))
+}
 
 impl<BS: BlockStore + Send + Sync> ActorMigration<BS> for MultisigMigrator {
     fn migrate_state(
